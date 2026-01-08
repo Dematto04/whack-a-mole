@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Mole Fun!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#FF6B9D',
+                        secondary: '#98FF98',
+                        sunny: '#FFE066',
+                        sky: '#7DD3FC',
+                        lavender: '#E6E6FA',
+                        peach: '#FDBCB4',
+                        dirt: '#8B5E3C',
+                        grass: '#4ADE80',
+                    },
+                    boxShadow: {
+                        clay: '6px 6px 0 0 rgba(0, 0, 0, 0.15), inset -3px -3px 0 rgba(255, 255, 255, 0.3)',
+                        'clay-sm': '4px 4px 0 0 rgba(0, 0, 0, 0.12), inset -2px -2px 0 rgba(255, 255, 255, 0.25)',
+                        'clay-pressed': '2px 2px 0 0 rgba(0, 0, 0, 0.1), inset 2px 2px 4px rgba(0, 0, 0, 0.1)',
+                    },
+                    borderRadius: {
+                        'blob': '60% 40% 50% 50% / 50% 60% 40% 50%',
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 50%, #C8E6C9 100%);
+            min-height: 100vh;
+        }
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .hole {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .hole::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.4), transparent 50%);
+            pointer-events: none;
+        }
+        .mole {
+            position: absolute;
+            bottom: -75%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 75%;
+            max-width: 110px;
+            aspect-ratio: 1 / 1.15;
+            background: linear-gradient(160deg, #C4A484 30%, #A67B5B 100%);
+            border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+            box-shadow: 
+                inset -4px -6px 0 rgba(0, 0, 0, 0.1),
+                inset 4px 4px 0 rgba(255, 255, 255, 0.2),
+                0 8px 0 #8B5E3C;
+            border: 4px solid #5D4037;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 12%;
+        }
+        .mole-face {
+            width: 75%;
+            aspect-ratio: 1;
+            background: linear-gradient(180deg, #FFECD2 0%, #FDBCB4 100%);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border: 3px solid #D4A574;
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.08);
+        }
+        .mole-eyes {
+            display: flex;
+            gap: 14px;
+        }
+        .mole-eye {
+            width: 14px;
+            height: 18px;
+            background: #2D1B0E;
+            border-radius: 50%;
+            position: relative;
+        }
+        .mole-eye::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+        }
+        .mole-nose {
+            width: 20px;
+            height: 12px;
+            background: linear-gradient(180deg, #FF8FAB 0%, #FF6B9D 100%);
+            border-radius: 50%;
+            border: 2px solid #E91E63;
+            margin-top: 2px;
+        }
+        .mole-cheeks {
+            display: flex;
+            gap: 28px;
+            margin-top: -2px;
+        }
+        .mole-cheek {
+            width: 10px;
+            height: 6px;
+            background: #FFAB91;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .hole.is-active .mole {
+            animation: pop 220ms ease-out forwards;
+        }
+        @keyframes pop {
+            0% { bottom: -75%; }
+            70% { bottom: 5%; }
+            100% { bottom: 0%; }
+        }
+        /* Hit effect - squish the mole */
+        .hole.is-hit .mole {
+            animation: squish 280ms ease-out forwards;
+        }
+        @keyframes squish {
+            0% { transform: translateX(-50%) scale(1, 1); }
+            30% { transform: translateX(-50%) scale(1.2, 0.7); }
+            50% { transform: translateX(-50%) scale(0.9, 1.1); }
+            70% { transform: translateX(-50%) scale(1.05, 0.95); bottom: -20%; }
+            100% { transform: translateX(-50%) scale(1, 1); bottom: -75%; }
+        }
+        /* Star burst effect */
+        .star-burst {
+            position: absolute;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            animation: starPop 400ms ease-out forwards;
+        }
+        .star svg {
+            width: 100%;
+            height: 100%;
+        }
+        @keyframes starPop {
+            0% { opacity: 1; transform: scale(0) translate(0, 0); }
+            50% { opacity: 1; transform: scale(1.2) translate(var(--tx), var(--ty)); }
+            100% { opacity: 0; transform: scale(0.8) translate(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5 - 20px)); }
+        }
+        /* Score popup */
+        .score-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #FFE066;
+            text-shadow: 2px 2px 0 #F59E0B, -1px -1px 0 #F59E0B;
+            pointer-events: none;
+            z-index: 25;
+            animation: scoreFloat 500ms ease-out forwards;
+        }
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -80%) scale(1.3); }
+            100% { opacity: 0; transform: translate(-50%, -120%) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hole.is-active .mole,
+            .hole.is-hit .mole {
+                animation: none;
+            }
+            .hole.is-hit .mole {
+                bottom: -75%;
+            }
+            .star, .score-popup {
+                animation: none;
+                opacity: 0;
+            }
+        }
+        .wiggle:hover {
+            animation: wiggle 0.3s ease-in-out;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        /* Scattered garden layout */
+        .garden-layout {
+            position: relative;
+            width: 100%;
+            height: 340px;
+        }
+        @media (min-width: 640px) {
+            .garden-layout {
+                height: 380px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .garden-layout {
+                height: 400px;
+            }
+        }
+        .garden-layout .hole {
+            position: absolute;
+        }
+        /* Mobile compact HUD */
+        .mobile-hud {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 8px 12px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            background: linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(8px);
+            border-top: 3px solid #FDBCB4;
+        }
+        @media (min-width: 1024px) {
+            .mobile-hud {
+                display: none;
+            }
+        }
+        /* Adjust body padding on mobile for fixed HUD */
+        @media (max-width: 1023px) {
+            body {
+                padding-bottom: 80px;
+            }
+        }
+        /* Hurt mole effects */
+        .hole.is-hit .mole {
+            animation: hurtSquish 400ms ease-out forwards;
+        }
+        .hole.is-hit .mole-eye {
+            animation: dizzyEyes 400ms ease-in-out;
+        }
+        .hole.is-hit .mole-face::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 14px;
+            background: #FF6B9D;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 2px solid #E91E63;
+            animation: bumpAppear 400ms ease-out;
+        }
+        .hole.is-hit .mole-face::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: calc(50% + 12px);
+            width: 10px;
+            height: 8px;
+            background: #FF8FAB;
+            border-radius: 50%;
+            border: 2px solid #E91E63;
+            animation: bumpAppear 400ms ease-out 50ms;
+        }
+        @keyframes hurtSquish {
+            0% { transform: translateX(-50%) scale(1, 1) rotate(0deg); bottom: 0%; }
+            15% { transform: translateX(-50%) scale(1.3, 0.6) rotate(-5deg); }
+            30% { transform: translateX(-50%) scale(0.85, 1.15) rotate(5deg); }
+            45% { transform: translateX(-50%) scale(1.1, 0.9) rotate(-3deg); }
+            60% { transform: translateX(-50%) scale(1, 1) rotate(0deg); bottom: -10%; }
+            100% { transform: translateX(-50%) scale(1, 1) rotate(0deg); bottom: -75%; }
+        }
+        @keyframes dizzyEyes {
+            0%, 100% { border-radius: 50%; }
+            20% { transform: rotate(180deg); border-radius: 50% 50% 20% 20%; }
+            40% { transform: rotate(360deg); border-radius: 20% 20% 50% 50%; }
+            60% { transform: rotate(540deg); border-radius: 50%; }
+            80% { transform: rotate(720deg); }
+        }
+        @keyframes bumpAppear {
+            0% { opacity: 0; transform: translateX(-50%) scale(0); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+        /* Dizzy spiral overlay */
+        .dizzy-spiral {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 30;
+            animation: spiralSpin 400ms linear;
+        }
+        @keyframes spiralSpin {
+            0% { opacity: 0; transform: translateX(-50%) rotate(0deg) scale(0); }
+            30% { opacity: 1; transform: translateX(-50%) rotate(180deg) scale(1.2); }
+            70% { opacity: 1; transform: translateX(-50%) rotate(540deg) scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) rotate(720deg) scale(0.5); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 font-body">
+    <!-- Cartoon clouds - hidden on mobile for cleaner look -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
+        <div class="cloud w-24 h-12 top-10 left-[10%]" style="box-shadow: 30px 10px 0 10px white, 60px 0 0 5px white;"></div>
+        <div class="cloud w-20 h-10 top-20 right-[15%]" style="box-shadow: 25px 8px 0 8px white, 50px 0 0 4px white;"></div>
+        <div class="cloud w-16 h-8 top-32 left-[40%]" style="box-shadow: 20px 6px 0 6px white, 40px 0 0 3px white;"></div>
+    </div>
+
+    <main class="relative max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+        <!-- Compact mobile header -->
+        <header class="text-center space-y-2 sm:space-y-4">
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-500 to-grass">
+                Whack-a-Mole!
+            </h1>
+            <p class="text-slate-600 text-sm sm:text-lg font-medium hidden sm:block max-w-2xl mx-auto">
+                Bop the cheeky moles before they duck back into their holes!
+            </p>
+        </header>
+
+        <!-- Mobile: Game board first, then controls -->
+        <section class="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-5 items-stretch">
+            <!-- Game Board - FIRST on mobile for focus -->
+            <div class="w-full order-1 lg:order-2 lg:col-span-2 space-y-3 sm:space-y-4">
+                <!-- Game Board -->
+                <div class="relative bg-gradient-to-b from-green-400 via-green-500 to-green-600 border-4 border-green-700 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-6 shadow-clay overflow-hidden">
+                    <!-- Grass texture overlay -->
+                    <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22><path d=%22M5 25 Q7 15 5 5%22 stroke=%22%23166534%22 stroke-width=%222%22 fill=%22none%22/><path d=%22M15 28 Q17 18 15 8%22 stroke=%22%23166534%22 stroke-width=%221.5%22 fill=%22none%22/><path d=%22M25 26 Q27 16 25 6%22 stroke=%22%23166534%22 stroke-width=%221.5%22 fill=%22none%22/></svg>');"></div>
+                    <!-- Decorative elements -->
+                    <div class="absolute top-2 left-3 w-6 sm:w-8 h-6 sm:h-8 opacity-70 pointer-events-none">
+                        <svg viewBox="0 0 24 24" fill="#FBBF24"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="4" r="3" fill="#FDE68A"/><circle cx="19" cy="9" r="3" fill="#FDE68A"/><circle cx="17" cy="17" r="3" fill="#FDE68A"/><circle cx="7" cy="17" r="3" fill="#FDE68A"/><circle cx="5" cy="9" r="3" fill="#FDE68A"/></svg>
+                    </div>
+                    <div class="absolute top-3 right-6 w-5 sm:w-6 h-5 sm:h-6 opacity-50 pointer-events-none">
+                        <svg viewBox="0 0 24 24" fill="#F472B6"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="4" r="3" fill="#FBCFE8"/><circle cx="19" cy="9" r="3" fill="#FBCFE8"/><circle cx="17" cy="17" r="3" fill="#FBCFE8"/><circle cx="7" cy="17" r="3" fill="#FBCFE8"/><circle cx="5" cy="9" r="3" fill="#FBCFE8"/></svg>
+                    </div>
+                    <div class="absolute bottom-12 left-4 w-4 sm:w-5 h-4 sm:h-5 opacity-60 pointer-events-none hidden sm:block">
+                        <svg viewBox="0 0 24 24" fill="#60A5FA"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="4" r="3" fill="#BFDBFE"/><circle cx="19" cy="9" r="3" fill="#BFDBFE"/><circle cx="17" cy="17" r="3" fill="#BFDBFE"/><circle cx="7" cy="17" r="3" fill="#BFDBFE"/><circle cx="5" cy="9" r="3" fill="#BFDBFE"/></svg>
+                    </div>
+                    <div class="absolute bottom-3 right-3 w-5 sm:w-7 h-5 sm:h-7 opacity-50 pointer-events-none">
+                        <svg viewBox="0 0 24 24" fill="#A78BFA"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="4" r="3" fill="#DDD6FE"/><circle cx="19" cy="9" r="3" fill="#DDD6FE"/><circle cx="17" cy="17" r="3" fill="#DDD6FE"/><circle cx="7" cy="17" r="3" fill="#DDD6FE"/><circle cx="5" cy="9" r="3" fill="#DDD6FE"/></svg>
+                    </div>
+                    <div id="board" class="garden-layout relative"></div>
+                    <p class="mt-2 text-center text-green-100 text-xs sm:text-sm font-semibold drop-shadow">Tap the moles!</p>
+                </div>
+
+                <!-- Desktop: Stats and controls below board -->
+                <div class="hidden lg:block space-y-4">
+                    <!-- Control bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 bg-white/80 border-4 border-peach rounded-3xl p-4 sm:p-5 shadow-clay">
+                        <div class="flex items-center gap-3">
+                            <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-sunny to-amber-400 border-4 border-amber-500 grid place-items-center shadow-clay-sm">
+                                <svg class="w-7 h-7 text-amber-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500 font-medium">Ready to play?</p>
+                                <p class="text-lg font-heading font-bold text-slate-800">Whack those moles!</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="start-btn-desktop" class="px-6 py-3 rounded-2xl bg-gradient-to-b from-grass to-green-500 text-white font-heading text-lg font-bold border-4 border-green-600 shadow-clay hover:shadow-clay-pressed hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-green-300">Start!</button>
+                            <button id="stop-btn-desktop" class="px-6 py-3 rounded-2xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-600 font-heading text-lg font-bold border-4 border-slate-300 shadow-clay hover:shadow-clay-pressed hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-slate-300">Stop</button>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-4 gap-3 text-center">
+                        <div class="rounded-2xl bg-white/80 border-4 border-primary/60 p-4 space-y-1 shadow-clay">
+                            <p class="text-slate-500 text-sm font-semibold">Score</p>
+                            <p id="score-desktop" class="text-3xl font-heading font-bold text-primary">0</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/80 border-4 border-sunny/80 p-4 space-y-1 shadow-clay">
+                            <p class="text-slate-500 text-sm font-semibold">Streak</p>
+                            <p id="streak-desktop" class="text-3xl font-heading font-bold text-amber-500">0</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/80 border-4 border-sky/80 p-4 space-y-1 shadow-clay">
+                            <p class="text-slate-500 text-sm font-semibold">Time</p>
+                            <p id="time-desktop" class="text-3xl font-heading font-bold text-sky-500">30</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/80 border-4 border-secondary/60 p-4 space-y-2 shadow-clay">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-500 font-semibold">Fun!</span>
+                                <span id="fun-label-desktop" class="font-bold text-green-600">Cool</span>
+                            </div>
+                            <div class="h-3 rounded-full bg-slate-200 overflow-hidden border-2 border-slate-300">
+                                <div id="fun-meter-desktop" class="h-full bg-gradient-to-r from-secondary via-sunny to-primary w-1/3 transition-all duration-300 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips sidebar - Hidden on mobile, shown on desktop -->
+            <aside class="order-2 lg:order-1 hidden lg:block space-y-4 bg-white/80 border-4 border-lavender rounded-3xl p-5 shadow-clay">
+                <h2 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    Tips to Win
+                </h2>
+                <ul class="space-y-3 text-slate-600 text-sm font-medium">
+                    <li class="flex items-start gap-2">
+                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-primary flex-shrink-0"></span>
+                        Watch the edges—moles love corners!
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-sunny flex-shrink-0"></span>
+                        Streaks boost the Fun meter.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-secondary flex-shrink-0"></span>
+                        Speed increases every 5 hits!
+                    </li>
+                </ul>
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-sunny/30 via-peach/20 to-lavender/30 border-3 border-amber-300 shadow-clay-sm">
+                    <p class="text-sm text-slate-500 font-semibold">Status</p>
+                    <p id="status" class="text-lg font-heading font-bold text-slate-800" aria-live="polite">Press Start to play!</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <!-- Mobile HUD - Fixed bottom bar -->
+    <div class="mobile-hud lg:hidden">
+        <div class="flex items-center justify-between gap-2">
+            <!-- Score & Time -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 bg-primary/20 px-3 py-1.5 rounded-xl border-2 border-primary/40">
+                    <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span id="score" class="text-lg font-heading font-bold text-primary">0</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-sky/20 px-3 py-1.5 rounded-xl border-2 border-sky/40">
+                    <svg class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="time" class="text-lg font-heading font-bold text-sky-600">30</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-sunny/30 px-3 py-1.5 rounded-xl border-2 border-amber-400/50">
+                    <svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <span id="streak" class="text-lg font-heading font-bold text-amber-600">0</span>
+                </div>
+            </div>
+            <!-- Control buttons -->
+            <div class="flex gap-2">
+                <button id="start-btn" class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-grass to-green-500 text-white font-heading font-bold border-3 border-green-600 shadow-clay-sm active:shadow-clay-pressed active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-300">
+                    <svg class="w-5 h-5 mx-auto" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </button>
+                <button id="stop-btn" class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-500 font-heading font-bold border-3 border-slate-300 shadow-clay-sm active:shadow-clay-pressed active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-300">
+                    <svg class="w-5 h-5 mx-auto" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Fun meter bar -->
+        <div class="mt-2 flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500">Fun</span>
+            <div class="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div id="fun-meter" class="h-full bg-gradient-to-r from-secondary via-sunny to-primary w-1/3 transition-all duration-300 rounded-full"></div>
+            </div>
+            <span id="fun-label" class="text-xs font-bold text-green-600">Cool</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

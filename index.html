@@ -1,644 +1,1629 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <title>Đấu tranh chống Giặc nội xâm</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        heading: ['Montserrat', 'sans-serif'],
-                        body: ['Be Vietnam Pro', 'sans-serif'],
-                    },
-                    colors: {
-                        revolution: '#D71920',
-                        gold: '#FFFF00',
-                        worker: '#0055A4',
-                        concrete: '#959595',
-                        enemy: '#D32F2F',
-                        ally: '#2E7D32',
-                        construction: '#E65100',
-                        steel: '#455A64',
-                    },
-                    boxShadow: {
-                        clay: '6px 6px 0 0 rgba(0, 0, 0, 0.15), inset -3px -3px 0 rgba(255, 255, 255, 0.3)',
-                        'clay-sm': '4px 4px 0 0 rgba(0, 0, 0, 0.12), inset -2px -2px 0 rgba(255, 255, 255, 0.25)',
-                        'clay-pressed': '2px 2px 0 0 rgba(0, 0, 0, 0.1), inset 2px 2px 4px rgba(0, 0, 0, 0.1)',
-                    },
-                    borderRadius: {
-                        'blob': '60% 40% 50% 50% / 50% 60% 40% 50%',
-                    },
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              heading: ["Montserrat", "sans-serif"],
+              body: ["Be Vietnam Pro", "sans-serif"],
             },
-        };
+            colors: {
+              revolution: "#D71920",
+              gold: "#FFFF00",
+              worker: "#0055A4",
+              concrete: "#959595",
+              enemy: "#D32F2F",
+              ally: "#2E7D32",
+              construction: "#E65100",
+              steel: "#455A64",
+            },
+            boxShadow: {
+              clay: "6px 6px 0 0 rgba(0, 0, 0, 0.15), inset -3px -3px 0 rgba(255, 255, 255, 0.3)",
+              "clay-sm":
+                "4px 4px 0 0 rgba(0, 0, 0, 0.12), inset -2px -2px 0 rgba(255, 255, 255, 0.25)",
+              "clay-pressed":
+                "2px 2px 0 0 rgba(0, 0, 0, 0.1), inset 2px 2px 4px rgba(0, 0, 0, 0.1)",
+            },
+            borderRadius: {
+              blob: "60% 40% 50% 50% / 50% 60% 40% 50%",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        /* Touch and mobile optimizations */
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
+      /* Touch and mobile optimizations */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+      }
+      body {
+        background: linear-gradient(
+          180deg,
+          #ffe0b2 0%,
+          #ffcc80 30%,
+          #ffb74d 60%,
+          #ffa726 100%
+        );
+        min-height: 100vh;
+        min-height: 100dvh;
+        touch-action: manipulation;
+        overscroll-behavior: none;
+        cursor:
+          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect x="8" y="2" width="4" height="16" fill="%238B4513" stroke="%23654321" stroke-width="1"/><rect x="4" y="18" width="12" height="8" rx="2" fill="%23455A64" stroke="%23263238" stroke-width="1.5"/><rect x="6" y="20" width="8" height="4" fill="%2378909C"/></svg>')
+            6 26,
+          pointer;
+      }
+      .hole {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        touch-action: manipulation;
+      }
+      .hole::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 50% 30%,
+          rgba(255, 255, 255, 0.4),
+          transparent 50%
+        );
+        pointer-events: none;
+      }
+      /* Entity System Styles */
+      /* Mobile-first entity sizing */
+      .entity {
+        position: absolute;
+        bottom: -100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 52px;
+        height: 56px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        pointer-events: none;
+        z-index: 10;
+      }
+      .entity-face {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid currentColor;
+        box-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.25),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+      }
+      .entity-face svg {
+        width: 18px;
+        height: 18px;
+      }
+      .entity-label {
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.5rem;
+        font-weight: 800;
+        color: white;
+        padding: 1px 4px;
+        border-radius: 3px;
+        margin-top: 1px;
+        white-space: nowrap;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      .hole.is-active .entity {
+        animation: entityPop 200ms ease-out forwards;
+      }
+      /* Enemy styling */
+      .hole.is-enemy .entity-face {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        border-color: #c62828;
+      }
+      /* Ally styling */
+      .hole.is-ally .entity-face {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-color: #1b5e20;
+      }
+      @keyframes entityPop {
+        0% {
+          bottom: -100%;
+          transform: translateX(-50%);
         }
-        body {
-            background: linear-gradient(180deg, #FFE0B2 0%, #FFCC80 30%, #FFB74D 60%, #FFA726 100%);
-            min-height: 100vh;
-            min-height: 100dvh;
-            touch-action: manipulation;
-            overscroll-behavior: none;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect x="8" y="2" width="4" height="16" fill="%238B4513" stroke="%23654321" stroke-width="1"/><rect x="4" y="18" width="12" height="8" rx="2" fill="%23455A64" stroke="%23263238" stroke-width="1.5"/><rect x="6" y="20" width="8" height="4" fill="%2378909C"/></svg>') 6 26, pointer;
+        70% {
+          bottom: 8%;
+          transform: translateX(-50%);
         }
-        .hole {
-            position: relative;
-            overflow: hidden;
-            isolation: isolate;
-            touch-action: manipulation;
+        100% {
+          bottom: -5%;
+          transform: translateX(-50%);
         }
-        .hole::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.4), transparent 50%);
-            pointer-events: none;
+      }
+      /* Hit effect */
+      .hole.is-hit .entity {
+        animation: entitySquish 300ms ease-out forwards;
+      }
+      @keyframes entitySquish {
+        0% {
+          transform: translateX(-50%) scale(1, 1);
+          bottom: 0%;
         }
-        /* Entity System Styles */
-        /* Mobile-first entity sizing */
+        30% {
+          transform: translateX(-50%) scale(1.2, 0.7);
+          bottom: -5%;
+        }
+        100% {
+          transform: translateX(-50%) scale(1, 1);
+          bottom: -100%;
+        }
+      }
+      /* Impact burst effect - mobile-first */
+      .impact-burst {
+        position: absolute;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .impact-particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: particlePop 400ms ease-out forwards;
+      }
+      @media (min-width: 640px) {
+        .impact-particle {
+          width: 10px;
+          height: 10px;
+        }
+      }
+      @media (min-width: 1024px) {
+        .impact-particle {
+          width: 12px;
+          height: 12px;
+        }
+      }
+      @keyframes particlePop {
+        0% {
+          opacity: 1;
+          transform: scale(0) translate(0, 0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.2) translate(var(--tx), var(--ty));
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.6)
+            translate(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5 - 20px));
+        }
+      }
+      /* Responsive entity sizing - tablets */
+      @media (min-width: 640px) {
         .entity {
-            position: absolute;
-            bottom: -100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 52px;
-            height: 56px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            pointer-events: none;
-            z-index: 10;
+          width: 64px;
+          height: 68px;
         }
         .entity-face {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid currentColor;
-            box-shadow: 
-                0 2px 4px rgba(0,0,0,0.25),
-                inset 0 -2px 0 rgba(0,0,0,0.1);
+          width: 44px;
+          height: 44px;
+          border-width: 3px;
         }
         .entity-face svg {
-            width: 18px;
-            height: 18px;
+          width: 24px;
+          height: 24px;
         }
         .entity-label {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.5rem;
-            font-weight: 800;
-            color: white;
-            padding: 1px 4px;
-            border-radius: 3px;
-            margin-top: 1px;
-            white-space: nowrap;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          font-size: 0.55rem;
+          padding: 2px 5px;
+          margin-top: 2px;
         }
-        .hole.is-active .entity {
-            animation: entityPop 200ms ease-out forwards;
+      }
+      /* Responsive entity sizing - desktop */
+      @media (min-width: 1024px) {
+        .entity {
+          width: 80px;
+          height: 88px;
         }
-        /* Enemy styling */
-        .hole.is-enemy .entity-face {
-            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-            border-color: #c62828;
+        .entity-face {
+          width: 56px;
+          height: 56px;
         }
-        /* Ally styling */
-        .hole.is-ally .entity-face {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border-color: #1b5e20;
+        .entity-face svg {
+          width: 30px;
+          height: 30px;
         }
-        @keyframes entityPop {
-            0% { bottom: -100%; transform: translateX(-50%); }
-            70% { bottom: 8%; transform: translateX(-50%); }
-            100% { bottom: 0%; transform: translateX(-50%); }
+        .entity-label {
+          font-size: 0.65rem;
+          padding: 3px 7px;
         }
-        /* Hit effect */
-        .hole.is-hit .entity {
-            animation: entitySquish 300ms ease-out forwards;
-        }
-        @keyframes entitySquish {
-            0% { transform: translateX(-50%) scale(1, 1); bottom: 0%; }
-            30% { transform: translateX(-50%) scale(1.2, 0.7); bottom: -5%; }
-            100% { transform: translateX(-50%) scale(1, 1); bottom: -100%; }
-        }
-        /* Impact burst effect - mobile-first */
-        .impact-burst {
-            position: absolute;
-            pointer-events: none;
-            z-index: 20;
-        }
-        .impact-particle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: particlePop 400ms ease-out forwards;
-        }
-        @media (min-width: 640px) {
-            .impact-particle {
-                width: 10px;
-                height: 10px;
-            }
-        }
-        @media (min-width: 1024px) {
-            .impact-particle {
-                width: 12px;
-                height: 12px;
-            }
-        }
-        @keyframes particlePop {
-            0% { opacity: 1; transform: scale(0) translate(0, 0); }
-            50% { opacity: 1; transform: scale(1.2) translate(var(--tx), var(--ty)); }
-            100% { opacity: 0; transform: scale(0.6) translate(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5 - 20px)); }
-        }
-        /* Responsive entity sizing - tablets */
-        @media (min-width: 640px) {
-            .entity {
-                width: 64px;
-                height: 68px;
-            }
-            .entity-face {
-                width: 44px;
-                height: 44px;
-                border-width: 3px;
-            }
-            .entity-face svg {
-                width: 24px;
-                height: 24px;
-            }
-            .entity-label {
-                font-size: 0.55rem;
-                padding: 2px 5px;
-                margin-top: 2px;
-            }
-        }
-        /* Responsive entity sizing - desktop */
-        @media (min-width: 1024px) {
-            .entity {
-                width: 80px;
-                height: 88px;
-            }
-            .entity-face {
-                width: 56px;
-                height: 56px;
-            }
-            .entity-face svg {
-                width: 30px;
-                height: 30px;
-            }
-            .entity-label {
-                font-size: 0.65rem;
-                padding: 3px 7px;
-            }
-        }
-        /* Score popup - enhanced, mobile-first */
+      }
+      /* Score popup - enhanced, mobile-first */
+      .score-popup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        font-size: 1.25rem;
+        pointer-events: none;
+        z-index: 25;
+        animation: scoreFloat 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+      @media (min-width: 640px) {
         .score-popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 900;
-            font-size: 1.25rem;
-            pointer-events: none;
-            z-index: 25;
-            animation: scoreFloat 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          font-size: 1.5rem;
         }
-        @media (min-width: 640px) {
-            .score-popup {
-                font-size: 1.5rem;
-            }
+      }
+      @media (min-width: 1024px) {
+        .score-popup {
+          font-size: 1.75rem;
         }
-        @media (min-width: 1024px) {
-            .score-popup {
-                font-size: 1.75rem;
-            }
+      }
+      .score-popup.positive {
+        color: #1b5e20;
+        text-shadow:
+          0 0 10px rgba(46, 125, 50, 0.5),
+          2px 2px 0 #4caf50,
+          -1px -1px 0 #81c784,
+          0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .score-popup.negative {
+        color: #b71c1c;
+        text-shadow:
+          0 0 10px rgba(211, 47, 47, 0.5),
+          2px 2px 0 #f44336,
+          -1px -1px 0 #ef9a9a,
+          0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      @keyframes scoreFloat {
+        0% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(0.3) rotate(-10deg);
         }
-        .score-popup.positive {
-            color: #1b5e20;
-            text-shadow: 
-                0 0 10px rgba(46, 125, 50, 0.5),
-                2px 2px 0 #4CAF50, 
-                -1px -1px 0 #81C784,
-                0 4px 8px rgba(0,0,0,0.2);
+        40% {
+          opacity: 1;
+          transform: translate(-50%, -90%) scale(1.4) rotate(5deg);
         }
-        .score-popup.negative {
-            color: #b71c1c;
-            text-shadow: 
-                0 0 10px rgba(211, 47, 47, 0.5),
-                2px 2px 0 #F44336, 
-                -1px -1px 0 #EF9A9A,
-                0 4px 8px rgba(0,0,0,0.2);
+        70% {
+          opacity: 1;
+          transform: translate(-50%, -110%) scale(1.1) rotate(-2deg);
         }
-        @keyframes scoreFloat {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); }
-            40% { opacity: 1; transform: translate(-50%, -90%) scale(1.4) rotate(5deg); }
-            70% { opacity: 1; transform: translate(-50%, -110%) scale(1.1) rotate(-2deg); }
-            100% { opacity: 0; transform: translate(-50%, -140%) scale(0.9) rotate(0deg); }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -140%) scale(0.9) rotate(0deg);
         }
-        @media (prefers-reduced-motion: reduce) {
-            .hole.is-active .entity,
-            .hole.is-hit .entity {
-                animation: none !important;
-            }
-            .hole.is-hit .entity {
-                bottom: -100%;
-            }
-            .impact-particle, .score-popup {
-                animation: none;
-                opacity: 0;
-            }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hole.is-active .entity,
+        .hole.is-hit .entity {
+          animation: none !important;
         }
-        /* Mobile-first game layout using dynamic viewport */
+        .hole.is-hit .entity {
+          bottom: -100%;
+        }
+        .impact-particle,
+        .score-popup {
+          animation: none;
+          opacity: 0;
+        }
+      }
+      /* Mobile-first game layout using dynamic viewport */
+      .garden-layout {
+        position: relative;
+        width: 100%;
+        /* Mobile: fill available space minus HUD */
+        height: calc(100svh - 180px);
+        min-height: 280px;
+        max-height: 500px;
+      }
+      @media (min-width: 640px) {
         .garden-layout {
-            position: relative;
-            width: 100%;
-            /* Mobile: fill available space minus HUD */
-            height: calc(100svh - 180px);
-            min-height: 280px;
-            max-height: 500px;
+          height: calc(100svh - 220px);
+          min-height: 320px;
+          max-height: 450px;
         }
-        @media (min-width: 640px) {
-            .garden-layout {
-                height: calc(100svh - 220px);
-                min-height: 320px;
-                max-height: 450px;
-            }
+      }
+      @media (min-width: 1024px) {
+        .garden-layout {
+          height: 400px;
+          min-height: 400px;
+          max-height: 450px;
         }
-        @media (min-width: 1024px) {
-            .garden-layout {
-                height: 400px;
-                min-height: 400px;
-                max-height: 450px;
-            }
-        }
-        .garden-layout .hole {
-            position: absolute;
-        }
-        /* Mobile compact HUD */
+      }
+      .garden-layout .hole {
+        position: absolute;
+      }
+      /* Mobile compact HUD */
+      .mobile-hud {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        padding: 6px 10px;
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
+        background: linear-gradient(
+          to top,
+          rgba(255, 255, 255, 0.98),
+          rgba(255, 255, 255, 0.95)
+        );
+        backdrop-filter: blur(8px);
+        border-top: 2px solid #d71920;
+      }
+      @media (min-width: 1024px) {
         .mobile-hud {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            padding: 6px 10px;
-            padding-bottom: max(6px, env(safe-area-inset-bottom));
-            background: linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
-            backdrop-filter: blur(8px);
-            border-top: 2px solid #D71920;
+          display: none;
         }
-        @media (min-width: 1024px) {
-            .mobile-hud {
-                display: none;
-            }
+      }
+      /* Mobile viewport optimization */
+      @media (max-width: 1023px) {
+        body {
+          padding-bottom: 72px;
+          min-height: 100dvh;
+          overflow-x: hidden;
         }
-        /* Mobile viewport optimization */
-        @media (max-width: 1023px) {
-            body {
-                padding-bottom: 72px;
-                min-height: 100dvh;
-                overflow-x: hidden;
-            }
-            /* Hide header text on very small screens */
-            .mobile-hide-text {
-                display: none;
-            }
+        /* Hide header text on very small screens */
+        .mobile-hide-text {
+          display: none;
         }
-        @media (max-height: 700px) and (max-width: 1023px) {
-            .mobile-compact-header {
-                display: none !important;
-            }
+      }
+      @media (max-height: 700px) and (max-width: 1023px) {
+        .mobile-compact-header {
+          display: none !important;
         }
+      }
+
+      /* Streak Rush Effects */
+      .streak-container {
+        transition: all 0.3s ease;
+      }
+
+      /* Streak glow pulse animation */
+      @keyframes streakPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes streakGlow {
+        0%,
+        100% {
+          box-shadow:
+            0 0 5px currentColor,
+            0 0 10px currentColor;
+          filter: brightness(1);
+        }
+        50% {
+          box-shadow:
+            0 0 15px currentColor,
+            0 0 30px currentColor,
+            0 0 45px currentColor;
+          filter: brightness(1.2);
+        }
+      }
+
+      @keyframes borderPulse {
+        0%,
+        100% {
+          border-color: rgba(46, 125, 50, 0.6);
+        }
+        50% {
+          border-color: rgba(46, 125, 50, 1);
+        }
+      }
+
+      @keyframes rushShake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-2px);
+        }
+        75% {
+          transform: translateX(2px);
+        }
+      }
+
+      /* Streak level classes */
+      .streak-level-1 .streak-indicator {
+        animation: streakPulse 1s ease-in-out infinite;
+      }
+
+      .streak-level-2 .streak-indicator {
+        animation:
+          streakPulse 0.8s ease-in-out infinite,
+          streakGlow 1.5s ease-in-out infinite;
+      }
+
+      .streak-level-3 .streak-indicator {
+        animation:
+          streakPulse 0.6s ease-in-out infinite,
+          streakGlow 1s ease-in-out infinite;
+      }
+
+      .streak-level-3 #game-container {
+        animation: rushShake 0.3s ease-in-out infinite;
+      }
+
+      /* Rush mode overlay */
+      .rush-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background: radial-gradient(
+          circle at center,
+          transparent 40%,
+          rgba(215, 25, 32, 0.1) 100%
+        );
+        z-index: 5;
+      }
+
+      .streak-level-2 .rush-overlay {
+        opacity: 0.5;
+      }
+
+      .streak-level-3 .rush-overlay {
+        opacity: 1;
+        background: radial-gradient(
+          circle at center,
+          transparent 30%,
+          rgba(215, 25, 32, 0.2) 100%
+        );
+        animation: rushPulse 0.5s ease-in-out infinite;
+      }
+
+      @keyframes rushPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+
+      /* Speed lines effect */
+      .speed-lines {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        overflow: hidden;
+        z-index: 4;
+      }
+
+      .speed-line {
+        position: absolute;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 215, 0, 0.6),
+          transparent
+        );
+        height: 2px;
+        animation: speedLine 0.8s linear infinite;
+      }
+
+      .streak-level-2 .speed-lines {
+        opacity: 0.3;
+      }
+
+      .streak-level-3 .speed-lines {
+        opacity: 0.6;
+      }
+
+      @keyframes speedLine {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(200%);
+        }
+      }
+
+      /* Streak counter fire effect */
+      .streak-fire {
+        position: relative;
+      }
+
+      .streak-fire::before {
+        content: "🔥";
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .streak-fire::after {
+        content: "🔥";
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .streak-level-2 .streak-fire::before,
+      .streak-level-2 .streak-fire::after {
+        opacity: 1;
+        animation: fireFlicker 0.5s ease-in-out infinite alternate;
+      }
+
+      .streak-level-3 .streak-fire::before,
+      .streak-level-3 .streak-fire::after {
+        opacity: 1;
+        font-size: 1.2rem;
+        animation: fireFlicker 0.3s ease-in-out infinite alternate;
+      }
+
+      @keyframes fireFlicker {
+        0% {
+          transform: translateY(-50%) scale(1);
+        }
+        100% {
+          transform: translateY(-55%) scale(1.1);
+        }
+      }
+
+      /* HUD intensity colors */
+      .streak-level-2 .streak-hud {
+        background: rgba(255, 165, 0, 0.3) !important;
+        border-color: rgba(255, 165, 0, 0.6) !important;
+      }
+
+      .streak-level-3 .streak-hud {
+        background: rgba(255, 69, 0, 0.4) !important;
+        border-color: rgba(255, 69, 0, 0.8) !important;
+        animation: hudPulse 0.4s ease-in-out infinite;
+      }
+
+      @keyframes hudPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
     </style>
-</head>
-<body class="min-h-screen text-slate-800 font-body">
+  </head>
+  <body class="min-h-screen text-slate-800 font-body streak-container">
     <!-- Construction site decorations -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none hidden lg:block">
-        <svg class="absolute top-0 left-[5%] w-20 h-40 opacity-20" viewBox="0 0 60 120">
-            <rect x="28" y="20" width="4" height="100" fill="#455A64"/>
-            <rect x="0" y="15" width="60" height="4" fill="#455A64"/>
-            <rect x="0" y="10" width="4" height="10" fill="#E65100"/>
-            <line x1="0" y1="15" x2="30" y2="60" stroke="#78909C" stroke-width="1"/>
-        </svg>
-        <svg class="absolute top-0 right-[8%] w-16 h-32 opacity-15" viewBox="0 0 60 120">
-            <rect x="28" y="20" width="4" height="100" fill="#455A64"/>
-            <rect x="0" y="15" width="60" height="4" fill="#455A64"/>
-            <rect x="56" y="10" width="4" height="10" fill="#FFFF00"/>
-        </svg>
+    <div
+      class="absolute inset-0 overflow-hidden pointer-events-none hidden lg:block"
+    >
+      <svg
+        class="absolute top-0 left-[5%] w-20 h-40 opacity-20"
+        viewBox="0 0 60 120"
+      >
+        <rect
+          x="28"
+          y="20"
+          width="4"
+          height="100"
+          fill="#455A64"
+        />
+        <rect
+          x="0"
+          y="15"
+          width="60"
+          height="4"
+          fill="#455A64"
+        />
+        <rect
+          x="0"
+          y="10"
+          width="4"
+          height="10"
+          fill="#E65100"
+        />
+        <line
+          x1="0"
+          y1="15"
+          x2="30"
+          y2="60"
+          stroke="#78909C"
+          stroke-width="1"
+        />
+      </svg>
+      <svg
+        class="absolute top-0 right-[8%] w-16 h-32 opacity-15"
+        viewBox="0 0 60 120"
+      >
+        <rect
+          x="28"
+          y="20"
+          width="4"
+          height="100"
+          fill="#455A64"
+        />
+        <rect
+          x="0"
+          y="15"
+          width="60"
+          height="4"
+          fill="#455A64"
+        />
+        <rect
+          x="56"
+          y="10"
+          width="4"
+          height="10"
+          fill="#FFFF00"
+        />
+      </svg>
     </div>
 
-    <main class="relative max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-8 space-y-2 sm:space-y-6">
-        <!-- Header - Compact on mobile -->
-        <header class="text-center space-y-1 sm:space-y-3">
-            <div class="mobile-compact-header inline-flex items-center gap-2 px-3 py-0.5 sm:px-4 sm:py-1 bg-revolution/10 border-2 border-revolution/30 rounded-full">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-revolution" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-                <span class="text-xs sm:text-sm font-semibold text-revolution">Tư tưởng Hồ Chí Minh</span>
+    <main
+      class="relative max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-8 space-y-2 sm:space-y-6"
+    >
+      <!-- Header - Compact on mobile -->
+      <header class="text-center space-y-1 sm:space-y-3">
+        <div
+          class="mobile-compact-header inline-flex items-center gap-2 px-3 py-0.5 sm:px-4 sm:py-1 bg-revolution/10 border-2 border-revolution/30 rounded-full"
+        >
+          <svg
+            class="w-4 h-4 sm:w-5 sm:h-5 text-revolution"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <polygon
+              points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+            />
+          </svg>
+          <span class="text-xs sm:text-sm font-semibold text-revolution"
+            >Tư tưởng Hồ Chí Minh</span
+          >
+        </div>
+        <h1
+          class="text-xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-revolution via-construction to-revolution leading-tight"
+        >
+          CHỐNG "GIẶC NỘI XÂM"
+        </h1>
+        <p
+          class="text-slate-600 text-sm sm:text-base font-medium hidden sm:block max-w-2xl mx-auto"
+        >
+          Thời kỳ quá độ là cuộc đấu tranh gay go. Hãy loại bỏ Tham ô, Lãng phí,
+          Quan liêu và bảo vệ các động lực cách mạng!
+        </p>
+      </header>
+
+      <!-- Mobile: Game board first, then controls -->
+      <section
+        class="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-5 items-stretch"
+      >
+        <!-- Game Board - FIRST on mobile for focus -->
+        <div
+          class="w-full order-1 lg:order-2 lg:col-span-2 space-y-3 sm:space-y-4"
+        >
+          <!-- Game Board - Construction Site -->
+          <div
+            id="game-container"
+            class="relative bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 border-4 border-amber-900 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-6 shadow-lg overflow-hidden"
+          >
+            <!-- Construction texture -->
+            <div
+              class="absolute inset-0 opacity-20 pointer-events-none"
+              style="
+                background-image: repeating-linear-gradient(
+                  45deg,
+                  transparent,
+                  transparent 10px,
+                  rgba(0, 0, 0, 0.1) 10px,
+                  rgba(0, 0, 0, 0.1) 20px
+                );
+              "
+            ></div>
+
+            <!-- Decorative construction elements -->
+            <div class="absolute top-2 left-3 opacity-60 pointer-events-none">
+              <svg
+                class="w-6 h-6 sm:w-8 sm:h-8"
+                viewBox="0 0 24 24"
+                fill="#FFFF00"
+              >
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z" />
+              </svg>
             </div>
-            <h1 class="text-xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-revolution via-construction to-revolution leading-tight">
-                CHỐNG "GIẶC NỘI XÂM"
-            </h1>
-            <p class="text-slate-600 text-sm sm:text-base font-medium hidden sm:block max-w-2xl mx-auto">
-                Thời kỳ quá độ là cuộc đấu tranh gay go. Hãy loại bỏ Tham ô, Lãng phí, Quan liêu và bảo vệ các động lực cách mạng!
+            <div class="absolute top-3 right-4 opacity-50 pointer-events-none">
+              <svg
+                class="w-5 h-5 sm:w-7 sm:h-7"
+                viewBox="0 0 24 24"
+                fill="#D71920"
+              >
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                />
+              </svg>
+            </div>
+            <!-- Rush effect overlays -->
+            <div class="rush-overlay"></div>
+            <div
+              class="speed-lines"
+              id="speed-lines"
+            ></div>
+            <div
+              id="board"
+              class="garden-layout relative"
+            ></div>
+            <p
+              class="mt-2 text-center text-amber-100 text-xs sm:text-sm font-semibold drop-shadow"
+            >
+              🔨 Đập "Giặc" (đỏ/xám) • 🛡️ Bảo vệ "Động lực" (xanh/tím)
             </p>
-        </header>
+          </div>
 
-        <!-- Mobile: Game board first, then controls -->
-        <section class="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-5 items-stretch">
-            <!-- Game Board - FIRST on mobile for focus -->
-            <div class="w-full order-1 lg:order-2 lg:col-span-2 space-y-3 sm:space-y-4">
-                <!-- Game Board - Construction Site -->
-                <div id="game-container" class="relative bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 border-4 border-amber-900 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-6 shadow-lg overflow-hidden">
-                    <!-- Construction texture -->
-                    <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);"></div>
-                    
-                    <!-- Decorative construction elements -->
-                    <div class="absolute top-2 left-3 opacity-60 pointer-events-none">
-                        <svg class="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="#FFFF00"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
-                    </div>
-                    <div class="absolute top-3 right-4 opacity-50 pointer-events-none">
-                        <svg class="w-5 h-5 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="#D71920"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-                    </div>
-                    <div id="board" class="garden-layout relative"></div>
-                    <p class="mt-2 text-center text-amber-100 text-xs sm:text-sm font-semibold drop-shadow">
-                        🔨 Đập "Giặc" (đỏ/xám) • 🛡️ Bảo vệ "Động lực" (xanh/tím)
-                    </p>
+          <!-- Desktop: Stats and controls below board -->
+          <div class="hidden lg:block space-y-4">
+            <!-- Control bar -->
+            <div
+              class="flex flex-wrap items-center justify-between gap-4 bg-white/90 border-4 border-construction rounded-3xl p-4 sm:p-5 shadow-lg"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-14 w-14 rounded-2xl bg-gradient-to-br from-gold to-amber-500 border-4 border-amber-600 grid place-items-center shadow-md"
+                >
+                  <svg
+                    class="w-7 h-7 text-amber-800"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"
+                    />
+                  </svg>
                 </div>
-
-                <!-- Desktop: Stats and controls below board -->
-                <div class="hidden lg:block space-y-4">
-                    <!-- Control bar -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 bg-white/90 border-4 border-construction rounded-3xl p-4 sm:p-5 shadow-lg">
-                        <div class="flex items-center gap-3">
-                            <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-gold to-amber-500 border-4 border-amber-600 grid place-items-center shadow-md">
-                                <svg class="w-7 h-7 text-amber-800" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm text-slate-500 font-medium">Sẵn sàng thi hành?</p>
-                                <p class="text-lg font-heading font-bold text-slate-800">Loại bỏ giặc nội xâm!</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button id="start-btn-desktop" class="px-6 py-3 rounded-2xl bg-gradient-to-b from-revolution to-red-700 text-white font-heading text-lg font-bold border-4 border-red-800 shadow-lg hover:shadow-md hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-red-300">Bắt đầu!</button>
-                            <button id="stop-btn-desktop" class="px-6 py-3 rounded-2xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-600 font-heading text-lg font-bold border-4 border-slate-300 shadow-lg hover:shadow-md hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-slate-300">Dừng</button>
-                        </div>
-                    </div>
-
-                    <!-- Stats -->
-                    <div class="grid grid-cols-4 gap-3 text-center">
-                        <div class="rounded-2xl bg-white/90 border-4 border-revolution/60 p-4 space-y-1 shadow-lg">
-                            <p class="text-slate-500 text-xs font-semibold">Chỉ số Liêm chính</p>
-                            <p id="score-desktop" class="text-3xl font-heading font-bold text-revolution">0</p>
-                        </div>
-                        <div class="rounded-2xl bg-white/90 border-4 border-ally/80 p-4 space-y-1 shadow-lg">
-                            <p class="text-slate-500 text-xs font-semibold">Chuỗi đúng</p>
-                            <p id="streak-desktop" class="text-3xl font-heading font-bold text-ally">0</p>
-                        </div>
-                        <div class="rounded-2xl bg-white/90 border-4 border-worker/80 p-4 space-y-1 shadow-lg">
-                            <p class="text-slate-500 text-xs font-semibold">Thời gian</p>
-                            <p id="time-desktop" class="text-3xl font-heading font-bold text-worker">60</p>
-                        </div>
-                        <div class="rounded-2xl bg-white/90 border-4 border-gold/60 p-4 space-y-2 shadow-lg">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="text-slate-500 font-semibold">Lòng dân</span>
-                                <span id="health-label-desktop" class="font-bold text-ally">100%</span>
-                            </div>
-                            <div class="h-3 rounded-full bg-slate-200 overflow-hidden border-2 border-slate-300">
-                                <div id="health-bar-desktop" class="h-full bg-gradient-to-r from-ally to-gold w-full transition-all duration-300 rounded-full"></div>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                  <p class="text-sm text-slate-500 font-medium">
+                    Sẵn sàng thi hành?
+                  </p>
+                  <p class="text-lg font-heading font-bold text-slate-800">
+                    Loại bỏ giặc nội xâm!
+                  </p>
                 </div>
+              </div>
+              <div class="flex gap-3">
+                <button
+                  id="start-btn-desktop"
+                  class="px-6 py-3 rounded-2xl bg-gradient-to-b from-revolution to-red-700 text-white font-heading text-lg font-bold border-4 border-red-800 shadow-lg hover:shadow-md hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-red-300"
+                >
+                  Bắt đầu!
+                </button>
+                <button
+                  id="stop-btn-desktop"
+                  class="px-6 py-3 rounded-2xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-600 font-heading text-lg font-bold border-4 border-slate-300 shadow-lg hover:shadow-md hover:translate-y-0.5 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-4 focus:ring-slate-300"
+                >
+                  Dừng
+                </button>
+              </div>
             </div>
 
-            <!-- Sidebar - Educational Legend -->
-            <aside class="order-2 lg:order-1 hidden lg:block space-y-4 bg-white/90 border-4 border-construction rounded-3xl p-5 shadow-lg">
-                <h2 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
-                    <svg class="w-6 h-6 text-revolution" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                    Thư viện Lý luận
-                </h2>
-                
-                <!-- Legend -->
-                <div class="space-y-2">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Giặc nội xâm (Đập!)</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-2 py-1 bg-enemy/20 text-enemy text-xs font-bold rounded-lg border border-enemy/40">Tham ô</span>
-                        <span class="px-2 py-1 bg-construction/20 text-construction text-xs font-bold rounded-lg border border-construction/40">Lãng phí</span>
-                        <span class="px-2 py-1 bg-steel/20 text-steel text-xs font-bold rounded-lg border border-steel/40">Quan liêu</span>
-                    </div>
+            <!-- Stats -->
+            <div class="grid grid-cols-4 gap-3 text-center">
+              <div
+                class="rounded-2xl bg-white/90 border-4 border-revolution/60 p-4 space-y-1 shadow-lg"
+              >
+                <p class="text-slate-500 text-xs font-semibold">
+                  Chỉ số Liêm chính
+                </p>
+                <p
+                  id="score-desktop"
+                  class="text-3xl font-heading font-bold text-revolution"
+                >
+                  0
+                </p>
+              </div>
+              <div
+                class="rounded-2xl bg-white/90 border-4 border-ally/80 p-4 space-y-1 shadow-lg streak-hud streak-indicator"
+              >
+                <p class="text-slate-500 text-xs font-semibold">Chuỗi đúng</p>
+                <p
+                  id="streak-desktop"
+                  class="text-3xl font-heading font-bold text-ally streak-fire"
+                >
+                  0
+                </p>
+              </div>
+              <div
+                class="rounded-2xl bg-white/90 border-4 border-worker/80 p-4 space-y-1 shadow-lg"
+              >
+                <p class="text-slate-500 text-xs font-semibold">Thời gian</p>
+                <p
+                  id="time-desktop"
+                  class="text-3xl font-heading font-bold text-worker"
+                >
+                  60
+                </p>
+              </div>
+              <div
+                class="rounded-2xl bg-white/90 border-4 border-gold/60 p-4 space-y-2 shadow-lg"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-slate-500 font-semibold">Lòng dân</span>
+                  <span
+                    id="health-label-desktop"
+                    class="font-bold text-ally"
+                    >100%</span
+                  >
                 </div>
-                <div class="space-y-2">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Động lực (Bảo vệ!)</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-2 py-1 bg-ally/20 text-ally text-xs font-bold rounded-lg border border-ally/40">Đoàn kết</span>
-                        <span class="px-2 py-1 bg-worker/20 text-worker text-xs font-bold rounded-lg border border-worker/40">Dân chủ</span>
-                        <span class="px-2 py-1 bg-purple-600/20 text-purple-600 text-xs font-bold rounded-lg border border-purple-600/40">Khoa học</span>
-                    </div>
+                <div
+                  class="h-3 rounded-full bg-slate-200 overflow-hidden border-2 border-slate-300"
+                >
+                  <div
+                    id="health-bar-desktop"
+                    class="h-full bg-gradient-to-r from-ally to-gold w-full transition-all duration-300 rounded-full"
+                  ></div>
                 </div>
-                
-                <!-- Rules -->
-                <ul class="space-y-2 text-slate-600 text-sm font-medium">
-                    <li class="flex items-start gap-2">
-                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-ally flex-shrink-0"></span>
-                        Đập giặc: <strong class="text-ally">+10 điểm</strong>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-enemy flex-shrink-0"></span>
-                        Đập nhầm động lực: <strong class="text-enemy">-20 điểm</strong>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="inline-block w-2 h-2 mt-1.5 rounded-full bg-steel flex-shrink-0"></span>
-                        Bỏ lọt giặc: <strong class="text-steel">-5 điểm</strong>
-                    </li>
-                </ul>
-                
-                <div class="p-4 rounded-2xl bg-gradient-to-br from-gold/30 via-construction/20 to-revolution/20 border-3 border-amber-400 shadow-md">
-                    <p class="text-sm text-slate-500 font-semibold">Trạng thái</p>
-                    <p id="status" class="text-base font-heading font-bold text-slate-800" aria-live="polite">Nhấn "Bắt đầu" để thi hành nhiệm vụ!</p>
-                </div>
-            </aside>
-        </section>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar - Educational Legend -->
+        <aside
+          class="order-2 lg:order-1 hidden lg:block space-y-4 bg-white/90 border-4 border-construction rounded-3xl p-5 shadow-lg"
+        >
+          <h2
+            class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2"
+          >
+            <svg
+              class="w-6 h-6 text-revolution"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+            Thư viện Lý luận
+          </h2>
+
+          <!-- Legend -->
+          <div class="space-y-2">
+            <p
+              class="text-xs font-bold text-slate-500 uppercase tracking-wider"
+            >
+              Giặc nội xâm (Đập!)
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-2 py-1 bg-enemy/20 text-enemy text-xs font-bold rounded-lg border border-enemy/40"
+                >Tham ô</span
+              >
+              <span
+                class="px-2 py-1 bg-construction/20 text-construction text-xs font-bold rounded-lg border border-construction/40"
+                >Lãng phí</span
+              >
+              <span
+                class="px-2 py-1 bg-steel/20 text-steel text-xs font-bold rounded-lg border border-steel/40"
+                >Quan liêu</span
+              >
+            </div>
+          </div>
+          <div class="space-y-2">
+            <p
+              class="text-xs font-bold text-slate-500 uppercase tracking-wider"
+            >
+              Động lực (Bảo vệ!)
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-2 py-1 bg-ally/20 text-ally text-xs font-bold rounded-lg border border-ally/40"
+                >Đoàn kết</span
+              >
+              <span
+                class="px-2 py-1 bg-worker/20 text-worker text-xs font-bold rounded-lg border border-worker/40"
+                >Dân chủ</span
+              >
+              <span
+                class="px-2 py-1 bg-purple-600/20 text-purple-600 text-xs font-bold rounded-lg border border-purple-600/40"
+                >Khoa học</span
+              >
+            </div>
+          </div>
+
+          <!-- Rules -->
+          <ul class="space-y-2 text-slate-600 text-sm font-medium">
+            <li class="flex items-start gap-2">
+              <span
+                class="inline-block w-2 h-2 mt-1.5 rounded-full bg-ally flex-shrink-0"
+              ></span>
+              Đập giặc: <strong class="text-ally">+10 điểm</strong>
+            </li>
+            <li class="flex items-start gap-2">
+              <span
+                class="inline-block w-2 h-2 mt-1.5 rounded-full bg-enemy flex-shrink-0"
+              ></span>
+              Đập nhầm động lực: <strong class="text-enemy">-20 điểm</strong>
+            </li>
+            <li class="flex items-start gap-2">
+              <span
+                class="inline-block w-2 h-2 mt-1.5 rounded-full bg-steel flex-shrink-0"
+              ></span>
+              Bỏ lọt giặc: <strong class="text-steel">-5 điểm</strong>
+            </li>
+          </ul>
+
+          <div
+            class="p-4 rounded-2xl bg-gradient-to-br from-gold/30 via-construction/20 to-revolution/20 border-3 border-amber-400 shadow-md"
+          >
+            <p class="text-sm text-slate-500 font-semibold">Trạng thái</p>
+            <p
+              id="status"
+              class="text-base font-heading font-bold text-slate-800"
+              aria-live="polite"
+            >
+              Nhấn "Bắt đầu" để thi hành nhiệm vụ!
+            </p>
+          </div>
+
+          <!-- Leaderboard -->
+          <div class="mt-4">
+            <h3
+              class="text-lg font-heading font-bold text-slate-800 flex items-center gap-2 mb-3"
+            >
+              <span class="text-xl">🏆</span> Bảng xếp hạng
+            </h3>
+            <div
+              id="leaderboard-desktop"
+              class="space-y-2 max-h-48 overflow-y-auto"
+            >
+              <div class="text-center text-slate-400 text-sm py-4">
+                Đang tải...
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
     </main>
 
     <!-- Mobile HUD - Fixed bottom bar -->
     <div class="mobile-hud lg:hidden">
-        <div class="flex items-center justify-between gap-2">
-            <!-- Stats -->
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1 bg-revolution/20 px-2.5 py-1.5 rounded-xl border-2 border-revolution/40">
-                    <svg class="w-4 h-4 text-revolution" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-                    <span id="score" class="text-lg font-heading font-bold text-revolution">0</span>
-                </div>
-                <div class="flex items-center gap-1 bg-worker/20 px-2.5 py-1.5 rounded-xl border-2 border-worker/40">
-                    <svg class="w-4 h-4 text-worker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span id="time" class="text-lg font-heading font-bold text-worker">60</span>
-                </div>
-                <div class="flex items-center gap-1 bg-ally/20 px-2.5 py-1.5 rounded-xl border-2 border-ally/40">
-                    <span class="text-xs">🔥</span>
-                    <span id="streak" class="text-lg font-heading font-bold text-ally">0</span>
-                </div>
-            </div>
-            <!-- Buttons -->
-            <div class="flex gap-2">
-                <button id="start-btn" class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-revolution to-red-700 text-white font-heading font-bold border-3 border-red-800 shadow-md active:shadow-sm active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-300">
-                    <svg class="w-5 h-5 mx-auto" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </button>
-                <button id="stop-btn" class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-500 font-heading font-bold border-3 border-slate-300 shadow-md active:shadow-sm active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    <svg class="w-5 h-5 mx-auto" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                </button>
-            </div>
+      <div class="flex items-center justify-between gap-2">
+        <!-- Stats -->
+        <div class="flex items-center gap-2">
+          <div
+            class="flex items-center gap-1 bg-revolution/20 px-2.5 py-1.5 rounded-xl border-2 border-revolution/40"
+          >
+            <svg
+              class="w-4 h-4 text-revolution"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <polygon
+                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              />
+            </svg>
+            <span
+              id="score"
+              class="text-lg font-heading font-bold text-revolution"
+              >0</span
+            >
+          </div>
+          <div
+            class="flex items-center gap-1 bg-worker/20 px-2.5 py-1.5 rounded-xl border-2 border-worker/40"
+          >
+            <svg
+              class="w-4 h-4 text-worker"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span
+              id="time"
+              class="text-lg font-heading font-bold text-worker"
+              >60</span
+            >
+          </div>
+          <div
+            class="flex items-center gap-1 bg-ally/20 px-2.5 py-1.5 rounded-xl border-2 border-ally/40 streak-hud streak-indicator"
+          >
+            <span class="text-xs">🔥</span>
+            <span
+              id="streak"
+              class="text-lg font-heading font-bold text-ally streak-fire"
+              >0</span
+            >
+          </div>
         </div>
-        <!-- Health bar (Lòng dân) -->
-        <div class="mt-2 flex items-center gap-2">
-            <span class="text-xs font-semibold text-slate-500">Lòng dân</span>
-            <div class="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
-                <div id="health-bar" class="h-full bg-gradient-to-r from-ally to-gold w-full transition-all duration-300 rounded-full"></div>
-            </div>
-            <span id="health-label" class="text-xs font-bold text-ally">100%</span>
+        <!-- Buttons -->
+        <div class="flex gap-2">
+          <button
+            id="start-btn"
+            class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-revolution to-red-700 text-white font-heading font-bold border-3 border-red-800 shadow-md active:shadow-sm active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-300"
+          >
+            <svg
+              class="w-5 h-5 mx-auto"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+          </button>
+          <button
+            id="stop-btn"
+            class="min-w-[52px] min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 text-slate-500 font-heading font-bold border-3 border-slate-300 shadow-md active:shadow-sm active:translate-y-0.5 transition-all duration-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-300"
+          >
+            <svg
+              class="w-5 h-5 mx-auto"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <rect
+                x="6"
+                y="4"
+                width="4"
+                height="16"
+              />
+              <rect
+                x="14"
+                y="4"
+                width="4"
+                height="16"
+              />
+            </svg>
+          </button>
         </div>
+      </div>
+      <!-- Health bar (Lòng dân) -->
+      <div class="mt-2 flex items-center gap-2">
+        <span class="text-xs font-semibold text-slate-500">Lòng dân</span>
+        <div class="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
+          <div
+            id="health-bar"
+            class="h-full bg-gradient-to-r from-ally to-gold w-full transition-all duration-300 rounded-full"
+          ></div>
+        </div>
+        <span
+          id="health-label"
+          class="text-xs font-bold text-ally"
+          >100%</span
+        >
+      </div>
+      <!-- Mobile: Current player and leaderboard button -->
+      <div class="mt-2 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500">👤</span>
+          <span
+            id="current-player-mobile"
+            class="text-xs font-semibold text-slate-700 truncate max-w-[100px]"
+            >---</span
+          >
+        </div>
+        <button
+          id="leaderboard-btn-mobile"
+          class="px-3 py-1 rounded-lg bg-gold/20 text-amber-700 text-xs font-bold border border-gold/40 hover:bg-gold/30 transition-all"
+        >
+          🏆 Xếp hạng
+        </button>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD MODAL - Mobile -->
+    <div
+      id="leaderboard-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[80vh] transform scale-95 transition-transform duration-300 border-4 border-gold overflow-hidden"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-gold to-amber-500 px-6 py-4 text-amber-900"
+        >
+          <div class="flex items-center justify-between">
+            <h2
+              class="text-xl font-heading font-extrabold flex items-center gap-2"
+            >
+              🏆 BẢNG XẾP HẠNG
+            </h2>
+            <button
+              id="close-leaderboard-btn"
+              class="text-2xl hover:scale-110 transition-transform"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <!-- Content -->
+        <div class="p-4 overflow-y-auto max-h-[60vh]">
+          <div
+            id="leaderboard-mobile"
+            class="space-y-2"
+          >
+            <div class="text-center text-slate-400 text-sm py-4">
+              Đang tải...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERNAME MODAL - Entry Point -->
+    <div
+      id="username-modal"
+      class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl max-w-md w-full transform scale-95 transition-transform duration-300 border-4 border-gold overflow-hidden"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-gold to-amber-500 px-6 py-5 text-amber-900"
+        >
+          <div class="text-center">
+            <div class="text-4xl mb-2">⭐</div>
+            <h2 class="text-2xl font-heading font-extrabold">
+              ĐĂNG KÝ CHIẾN SĨ
+            </h2>
+            <p class="text-amber-700 text-sm font-semibold">
+              Nhập tên để tham gia bảng xếp hạng
+            </p>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6 space-y-4">
+          <div>
+            <label
+              for="username-input"
+              class="block text-sm font-semibold text-slate-600 mb-2"
+            >
+              Tên chiến sĩ
+            </label>
+            <input
+              type="text"
+              id="username-input"
+              maxlength="20"
+              placeholder="Nhập tên của bạn..."
+              class="w-full px-4 py-3 rounded-xl border-3 border-slate-200 focus:border-gold focus:ring-2 focus:ring-gold/30 outline-none font-medium text-slate-800 placeholder-slate-400 transition-all"
+            />
+            <p
+              id="username-error"
+              class="text-enemy text-sm mt-2 hidden"
+            >
+              Vui lòng nhập tên (2-20 ký tự)
+            </p>
+          </div>
+
+          <!-- Leaderboard Preview -->
+          <div class="bg-slate-50 rounded-2xl p-4 border-2 border-slate-200">
+            <h3
+              class="font-heading font-bold text-slate-700 mb-3 flex items-center gap-2"
+            >
+              <span>🏆</span> Top 5 Chiến sĩ
+            </h3>
+            <div
+              id="leaderboard-preview"
+              class="space-y-2"
+            >
+              <div class="text-center text-slate-400 text-sm py-2">
+                Đang tải...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 pb-6">
+          <button
+            id="username-submit-btn"
+            class="w-full py-4 bg-gradient-to-b from-gold to-amber-500 hover:from-amber-400 hover:to-amber-600 text-amber-900 text-xl font-heading font-extrabold rounded-2xl border-4 border-amber-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-amber-300"
+          >
+            ⚔️ VÀO TRẬN
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- START MODAL - Mission Briefing -->
-    <div id="start-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="modal-content bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300 border-4 border-revolution">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-revolution to-red-700 px-6 py-5 text-white">
-                <div class="flex items-center justify-center gap-3">
-                    <svg class="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-                    <div class="text-center">
-                        <h2 id="briefing-title" class="text-2xl sm:text-3xl font-heading font-extrabold">NHIỆM VỤ CỦA BẠN</h2>
-                        <p id="briefing-subtitle" class="text-gold/90 font-semibold">Bảo vệ Thành quả Cách mạng</p>
-                    </div>
-                    <svg class="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-                </div>
+    <div
+      id="start-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300 border-4 border-revolution"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-revolution to-red-700 px-6 py-5 text-white"
+        >
+          <div class="flex items-center justify-center gap-3">
+            <svg
+              class="w-10 h-10 text-gold"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <polygon
+                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              />
+            </svg>
+            <div class="text-center">
+              <h2
+                id="briefing-title"
+                class="text-2xl sm:text-3xl font-heading font-extrabold"
+              >
+                NHIỆM VỤ CỦA BẠN
+              </h2>
+              <p
+                id="briefing-subtitle"
+                class="text-gold/90 font-semibold"
+              >
+                Bảo vệ Thành quả Cách mạng
+              </p>
             </div>
-            
-            <!-- Content -->
-            <div class="p-6 space-y-5">
-                <!-- Intro paragraphs -->
-                <div id="briefing-paragraphs" class="space-y-3 text-slate-700 leading-relaxed">
-                    <!-- Populated by JS -->
-                </div>
-                
-                <!-- Entity Legend Grid -->
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <!-- Enemies -->
-                    <div class="bg-enemy/5 border-2 border-enemy/30 rounded-2xl p-4">
-                        <h3 class="font-heading font-bold text-enemy mb-3 flex items-center gap-2">
-                            <span class="text-xl">🎯</span> GIẶC NỘI XÂM <span class="text-xs font-normal">(Đập!)</span>
-                        </h3>
-                        <div id="enemy-legend" class="space-y-2">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                    <!-- Allies -->
-                    <div class="bg-ally/5 border-2 border-ally/30 rounded-2xl p-4">
-                        <h3 class="font-heading font-bold text-ally mb-3 flex items-center gap-2">
-                            <span class="text-xl">🛡️</span> ĐỘNG LỰC <span class="text-xs font-normal">(Bảo vệ!)</span>
-                        </h3>
-                        <div id="ally-legend" class="space-y-2">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Rules -->
-                <div class="bg-slate-50 rounded-2xl p-4 border-2 border-slate-200">
-                    <h3 class="font-heading font-bold text-slate-700 mb-2">📋 Quy tắc chấm điểm</h3>
-                    <ul id="briefing-rules" class="space-y-1 text-sm text-slate-600">
-                        <!-- Populated by JS -->
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Footer -->
-            <div class="px-6 pb-6">
-                <button id="modal-start-btn" class="w-full py-4 bg-gradient-to-b from-revolution to-red-700 hover:from-red-600 hover:to-red-800 text-white text-xl font-heading font-extrabold rounded-2xl border-4 border-red-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-300">
-                    🚀 BẮT ĐẦU NHIỆM VỤ
-                </button>
-            </div>
+            <svg
+              class="w-10 h-10 text-gold"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <polygon
+                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              />
+            </svg>
+          </div>
         </div>
+
+        <!-- Content -->
+        <div class="p-6 space-y-5">
+          <!-- Intro paragraphs -->
+          <div
+            id="briefing-paragraphs"
+            class="space-y-3 text-slate-700 leading-relaxed"
+          >
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Entity Legend Grid -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <!-- Enemies -->
+            <div class="bg-enemy/5 border-2 border-enemy/30 rounded-2xl p-4">
+              <h3
+                class="font-heading font-bold text-enemy mb-3 flex items-center gap-2"
+              >
+                <span class="text-xl">🎯</span> GIẶC NỘI XÂM
+                <span class="text-xs font-normal">(Đập!)</span>
+              </h3>
+              <div
+                id="enemy-legend"
+                class="space-y-2"
+              >
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            <!-- Allies -->
+            <div class="bg-ally/5 border-2 border-ally/30 rounded-2xl p-4">
+              <h3
+                class="font-heading font-bold text-ally mb-3 flex items-center gap-2"
+              >
+                <span class="text-xl">🛡️</span> ĐỘNG LỰC
+                <span class="text-xs font-normal">(Bảo vệ!)</span>
+              </h3>
+              <div
+                id="ally-legend"
+                class="space-y-2"
+              >
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Rules -->
+          <div class="bg-slate-50 rounded-2xl p-4 border-2 border-slate-200">
+            <h3 class="font-heading font-bold text-slate-700 mb-2">
+              📋 Quy tắc chấm điểm
+            </h3>
+            <ul
+              id="briefing-rules"
+              class="space-y-1 text-sm text-slate-600"
+            >
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 pb-6">
+          <button
+            id="modal-start-btn"
+            class="w-full py-4 bg-gradient-to-b from-revolution to-red-700 hover:from-red-600 hover:to-red-800 text-white text-xl font-heading font-extrabold rounded-2xl border-4 border-red-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-300"
+          >
+            🚀 BẮT ĐẦU NHIỆM VỤ
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- END MODAL - Debrief -->
-    <div id="end-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="modal-content bg-white rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-300 border-4 border-worker overflow-hidden">
-            <!-- Header with dynamic color -->
-            <div id="debrief-header" class="px-6 py-5 text-white bg-gradient-to-r from-worker to-blue-700">
-                <div class="text-center">
-                    <div id="debrief-icon" class="text-5xl mb-2">⭐</div>
-                    <h2 id="debrief-title" class="text-3xl font-heading font-extrabold">KẾT QUẢ</h2>
-                </div>
+    <div
+      id="end-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-300 border-4 border-worker overflow-hidden"
+      >
+        <!-- Header with dynamic color -->
+        <div
+          id="debrief-header"
+          class="px-6 py-5 text-white bg-gradient-to-r from-worker to-blue-700"
+        >
+          <div class="text-center">
+            <div
+              id="debrief-icon"
+              class="text-5xl mb-2"
+            >
+              ⭐
             </div>
-            
-            <!-- Stats -->
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-revolution/10 rounded-xl p-3 text-center border-2 border-revolution/30">
-                        <p class="text-xs text-slate-500 font-semibold">Điểm số</p>
-                        <p id="final-score" class="text-2xl font-heading font-extrabold text-revolution">0</p>
-                    </div>
-                    <div class="bg-ally/10 rounded-xl p-3 text-center border-2 border-ally/30">
-                        <p class="text-xs text-slate-500 font-semibold">Độ chính xác</p>
-                        <p id="final-accuracy" class="text-2xl font-heading font-extrabold text-ally">0%</p>
-                    </div>
-                    <div class="bg-worker/10 rounded-xl p-3 text-center border-2 border-worker/30">
-                        <p class="text-xs text-slate-500 font-semibold">Giặc bị diệt</p>
-                        <p id="final-enemies" class="text-2xl font-heading font-extrabold text-worker">0</p>
-                    </div>
-                    <div class="bg-construction/10 rounded-xl p-3 text-center border-2 border-construction/30">
-                        <p class="text-xs text-slate-500 font-semibold">Lòng dân còn</p>
-                        <p id="final-health" class="text-2xl font-heading font-extrabold text-construction">0%</p>
-                    </div>
-                </div>
-                
-                <!-- Message -->
-                <div class="text-center">
-                    <p id="debrief-message" class="text-lg font-semibold text-slate-700 mb-2">Bạn đã hoàn thành nhiệm vụ!</p>
-                </div>
-                
-                <!-- Quote -->
-                <div class="bg-gold/20 border-l-4 border-gold rounded-r-xl p-4">
-                    <p class="text-sm italic text-slate-600">
-                        <span class="text-gold font-bold">❝</span>
-                        <span id="debrief-quote">Cần, Kiệm, Liêm, Chính là nền tảng của đời sống mới.</span>
-                        <span class="text-gold font-bold">❞</span>
-                    </p>
-                    <p class="text-right text-xs text-slate-500 mt-1 font-semibold">— Hồ Chí Minh</p>
-                </div>
-            </div>
-            
-            <!-- Footer -->
-            <div class="px-6 pb-6 flex gap-3">
-                <button id="modal-replay-btn" class="flex-1 py-3 bg-gradient-to-b from-revolution to-red-700 hover:from-red-600 hover:to-red-800 text-white font-heading font-bold rounded-xl border-3 border-red-800 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300">
-                    🔄 Chơi lại
-                </button>
-                <button id="modal-close-btn" class="flex-1 py-3 bg-gradient-to-b from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-600 font-heading font-bold rounded-xl border-3 border-slate-300 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    ✕ Đóng
-                </button>
-            </div>
+            <h2
+              id="debrief-title"
+              class="text-3xl font-heading font-extrabold"
+            >
+              KẾT QUẢ
+            </h2>
+          </div>
         </div>
+
+        <!-- Stats -->
+        <div class="p-6 space-y-4">
+          <!-- Combined Score -->
+          <div
+            class="bg-gradient-to-r from-gold/30 to-amber-200 rounded-2xl p-4 text-center border-3 border-gold"
+          >
+            <p class="text-sm text-amber-700 font-semibold">
+              TỔNG ĐIỂM (Liêm chính + Lòng dân)
+            </p>
+            <p
+              id="final-total-score"
+              class="text-4xl font-heading font-extrabold text-amber-800"
+            >
+              0
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              class="bg-revolution/10 rounded-xl p-3 text-center border-2 border-revolution/30"
+            >
+              <p class="text-xs text-slate-500 font-semibold">
+                Điểm Liêm chính
+              </p>
+              <p
+                id="final-score"
+                class="text-2xl font-heading font-extrabold text-revolution"
+              >
+                0
+              </p>
+            </div>
+            <div
+              class="bg-ally/10 rounded-xl p-3 text-center border-2 border-ally/30"
+            >
+              <p class="text-xs text-slate-500 font-semibold">Độ chính xác</p>
+              <p
+                id="final-accuracy"
+                class="text-2xl font-heading font-extrabold text-ally"
+              >
+                0%
+              </p>
+            </div>
+            <div
+              class="bg-worker/10 rounded-xl p-3 text-center border-2 border-worker/30"
+            >
+              <p class="text-xs text-slate-500 font-semibold">Giặc bị diệt</p>
+              <p
+                id="final-enemies"
+                class="text-2xl font-heading font-extrabold text-worker"
+              >
+                0
+              </p>
+            </div>
+            <div
+              class="bg-construction/10 rounded-xl p-3 text-center border-2 border-construction/30"
+            >
+              <p class="text-xs text-slate-500 font-semibold">Lòng dân còn</p>
+              <p
+                id="final-health"
+                class="text-2xl font-heading font-extrabold text-construction"
+              >
+                0%
+              </p>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="text-center">
+            <p
+              id="debrief-message"
+              class="text-lg font-semibold text-slate-700 mb-2"
+            >
+              Bạn đã hoàn thành nhiệm vụ!
+            </p>
+          </div>
+
+          <!-- Quote -->
+          <div class="bg-gold/20 border-l-4 border-gold rounded-r-xl p-4">
+            <p class="text-sm italic text-slate-600">
+              <span class="text-gold font-bold">❝</span>
+              <span id="debrief-quote"
+                >Cần, Kiệm, Liêm, Chính là nền tảng của đời sống mới.</span
+              >
+              <span class="text-gold font-bold">❞</span>
+            </p>
+            <p class="text-right text-xs text-slate-500 mt-1 font-semibold">
+              — Hồ Chí Minh
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 pb-6 flex gap-3">
+          <button
+            id="modal-replay-btn"
+            class="flex-1 py-3 bg-gradient-to-b from-revolution to-red-700 hover:from-red-600 hover:to-red-800 text-white font-heading font-bold rounded-xl border-3 border-red-800 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+          >
+            🔄 Chơi lại
+          </button>
+          <button
+            id="modal-close-btn"
+            class="flex-1 py-3 bg-gradient-to-b from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-600 font-heading font-bold rounded-xl border-3 border-slate-300 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-300"
+          >
+            ✕ Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ MODAL - Ally Hit Quiz -->
+    <div
+      id="quiz-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-300 border-4 border-ally overflow-hidden"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-ally to-green-600 px-6 py-4 text-white"
+        >
+          <div class="text-center">
+            <div class="text-3xl mb-1">📚</div>
+            <h2 class="text-xl font-heading font-extrabold">
+              CÂU HỎI KIỂM TRA
+            </h2>
+            <p class="text-green-100 text-sm">
+              Trả lời đúng để giảm hình phạt!
+            </p>
+          </div>
+        </div>
+
+        <!-- Question -->
+        <div class="p-6 space-y-4">
+          <div class="bg-slate-50 rounded-2xl p-4 border-2 border-slate-200">
+            <p
+              id="quiz-question"
+              class="text-lg font-semibold text-slate-800 text-center"
+            >
+              Câu hỏi sẽ hiển thị ở đây
+            </p>
+          </div>
+
+          <!-- Answer Options -->
+          <div
+            id="quiz-options"
+            class="space-y-3"
+          >
+            <button
+              class="quiz-option w-full py-3 px-4 text-left rounded-xl border-3 border-slate-200 bg-white hover:border-ally hover:bg-ally/5 transition-all duration-200 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ally"
+              data-index="0"
+            >
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold mr-3"
+                >A</span
+              >
+              <span class="option-text">Đáp án A</span>
+            </button>
+            <button
+              class="quiz-option w-full py-3 px-4 text-left rounded-xl border-3 border-slate-200 bg-white hover:border-ally hover:bg-ally/5 transition-all duration-200 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ally"
+              data-index="1"
+            >
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold mr-3"
+                >B</span
+              >
+              <span class="option-text">Đáp án B</span>
+            </button>
+            <button
+              class="quiz-option w-full py-3 px-4 text-left rounded-xl border-3 border-slate-200 bg-white hover:border-ally hover:bg-ally/5 transition-all duration-200 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ally"
+              data-index="2"
+            >
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold mr-3"
+                >C</span
+              >
+              <span class="option-text">Đáp án C</span>
+            </button>
+            <button
+              class="quiz-option w-full py-3 px-4 text-left rounded-xl border-3 border-slate-200 bg-white hover:border-ally hover:bg-ally/5 transition-all duration-200 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ally"
+              data-index="3"
+            >
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-bold mr-3"
+                >D</span
+              >
+              <span class="option-text">Đáp án D</span>
+            </button>
+          </div>
+
+          <!-- Feedback Area (hidden by default) -->
+          <div
+            id="quiz-feedback"
+            class="hidden text-center py-3 px-4 rounded-xl font-semibold"
+          >
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="data.js"></script>
     <script src="app.js"></script>
-</body>
+  </body>
 </html>

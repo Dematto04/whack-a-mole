@@ -100,7 +100,10 @@ const config = {
     missEnemy: -5,
     allyHealthPenalty: 15,
     quizCorrect: 5,
+    periodicQuizCorrect: 20,
+    periodicQuizWrong: -15,
   },
+  periodicQuizInterval: 10000, // 10 seconds
   spawnRates: {
     enemyChance: 0.7, // 70% chance to spawn enemy
     allyChance: 0.3, // 30% chance to spawn ally
@@ -131,6 +134,7 @@ const state = {
   playing: false,
   quizActive: false, // Quiz popup is showing
   currentQuiz: null, // Current quiz question
+  quizType: null, // 'ally' or 'periodic'
   stats: {
     enemiesHit: 0,
     alliesHit: 0,
@@ -142,6 +146,7 @@ const timers = {
   countdown: null,
   spawn: null,
   entityUp: null,
+  periodicQuiz: null,
 };
 
 // ============================================
@@ -432,6 +437,19 @@ function clearTimers() {
   clearInterval(timers.countdown);
   clearTimeout(timers.spawn);
   clearTimeout(timers.entityUp);
+  clearTimeout(timers.periodicQuiz);
+}
+
+function schedulePeriodicQuiz() {
+  clearTimeout(timers.periodicQuiz);
+  if (!state.playing || state.quizActive || state.timeLeft <= 0) return;
+
+  timers.periodicQuiz = setTimeout(() => {
+    if (state.playing && !state.quizActive && state.timeLeft > 0) {
+      const question = getRandomQuizQuestion();
+      showQuizModal(question, "periodic");
+    }
+  }, config.periodicQuizInterval);
 }
 
 function hideActiveEntity() {
@@ -669,6 +687,7 @@ function startGame() {
 
   startCountdown();
   scheduleNextEntity(500);
+  schedulePeriodicQuiz();
 }
 
 function stopGame(reason = "Tạm dừng. Sẵn sàng khi bạn muốn.") {
@@ -849,12 +868,19 @@ function getRandomQuizQuestion() {
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
-function showQuizModal(question) {
+function showQuizModal(question, type = "ally") {
   state.quizActive = true;
   state.currentQuiz = question;
+  state.quizType = type;
 
-  // Pause game timer
+  // Pause ALL game timers
   clearInterval(timers.countdown);
+  clearTimeout(timers.periodicQuiz);
+  clearTimeout(timers.spawn);
+  clearTimeout(timers.entityUp);
+
+  // Hide any active entity
+  hideActiveEntity();
 
   // Populate question
   if (quizQuestionEl) {
@@ -887,11 +913,13 @@ function hideQuizModal() {
   hideModal(quizModal);
   state.quizActive = false;
   state.currentQuiz = null;
+  state.quizType = null;
 
   // Resume game timer if still playing
   if (state.playing && state.timeLeft > 0) {
     startCountdown();
     scheduleNextEntity(600);
+    schedulePeriodicQuiz(); // Restart periodic quiz timer
   }
 
   // Check for game over after quiz
@@ -930,32 +958,52 @@ function handleQuizAnswer(selectedIndex) {
   if (quizFeedbackEl) {
     quizFeedbackEl.classList.remove("hidden");
 
-    if (isCorrect) {
-      // Correct answer: +5 points, streak reset, no health penalty
-      state.score += config.scoring.quizCorrect;
-      state.streak = 0;
-
-      quizFeedbackEl.className =
-        "text-center py-3 px-4 rounded-xl font-semibold bg-ally/20 text-ally border-2 border-ally";
-      quizFeedbackEl.innerHTML = `✓ Chính xác! <span class="text-lg font-bold">+${config.scoring.quizCorrect} điểm</span><br><span class="text-sm">Streak reset về 0</span>`;
-      showToast(
-        `+${config.scoring.quizCorrect} điểm! Hiểu biết tốt!`,
-        "success",
-      );
+    if (state.quizType === "periodic") {
+      // Periodic quiz scoring - no streak reset, no health penalty
+      if (isCorrect) {
+        state.score += config.scoring.periodicQuizCorrect;
+        quizFeedbackEl.className =
+          "text-center py-3 px-4 rounded-xl font-semibold bg-ally/20 text-ally border-2 border-ally";
+        quizFeedbackEl.innerHTML = `✓ Chính xác! <span class="text-lg font-bold">+${config.scoring.periodicQuizCorrect} điểm</span>`;
+        showToast(
+          `+${config.scoring.periodicQuizCorrect} điểm! Giỏi lắm!`,
+          "success",
+        );
+      } else {
+        state.score = Math.max(
+          0,
+          state.score + config.scoring.periodicQuizWrong,
+        );
+        quizFeedbackEl.className =
+          "text-center py-3 px-4 rounded-xl font-semibold bg-enemy/20 text-enemy border-2 border-enemy";
+        quizFeedbackEl.innerHTML = `✗ Sai rồi! <span class="text-lg font-bold">${config.scoring.periodicQuizWrong} điểm</span>`;
+        showToast(`${config.scoring.periodicQuizWrong} điểm!`, "error");
+      }
     } else {
-      // Wrong answer: full penalty
-      state.score = Math.max(0, state.score + config.scoring.hitAlly);
-      state.health = Math.max(
-        0,
-        state.health - config.scoring.allyHealthPenalty,
-      );
-      state.streak = 0;
-      state.stats.alliesHit++;
-
-      quizFeedbackEl.className =
-        "text-center py-3 px-4 rounded-xl font-semibold bg-enemy/20 text-enemy border-2 border-enemy";
-      quizFeedbackEl.innerHTML = `✗ Sai rồi! <span class="text-lg font-bold">${config.scoring.hitAlly} điểm</span><br><span class="text-sm">-${config.scoring.allyHealthPenalty}% Lòng dân</span>`;
-      showToast("Trả lời sai! Phải học hỏi thêm.", "error");
+      // Ally quiz scoring (existing logic)
+      if (isCorrect) {
+        state.score += config.scoring.quizCorrect;
+        state.streak = 0;
+        quizFeedbackEl.className =
+          "text-center py-3 px-4 rounded-xl font-semibold bg-ally/20 text-ally border-2 border-ally";
+        quizFeedbackEl.innerHTML = `✓ Chính xác! <span class="text-lg font-bold">+${config.scoring.quizCorrect} điểm</span><br><span class="text-sm">Streak reset về 0</span>`;
+        showToast(
+          `+${config.scoring.quizCorrect} điểm! Hiểu biết tốt!`,
+          "success",
+        );
+      } else {
+        state.score = Math.max(0, state.score + config.scoring.hitAlly);
+        state.health = Math.max(
+          0,
+          state.health - config.scoring.allyHealthPenalty,
+        );
+        state.streak = 0;
+        state.stats.alliesHit++;
+        quizFeedbackEl.className =
+          "text-center py-3 px-4 rounded-xl font-semibold bg-enemy/20 text-enemy border-2 border-enemy";
+        quizFeedbackEl.innerHTML = `✗ Sai rồi! <span class="text-lg font-bold">${config.scoring.hitAlly} điểm</span><br><span class="text-sm">-${config.scoring.allyHealthPenalty}% Lòng dân</span>`;
+        showToast("Trả lời sai! Phải học hỏi thêm.", "error");
+      }
     }
   }
 

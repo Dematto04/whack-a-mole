@@ -78,13 +78,13 @@ const leaderboardModal = document.getElementById("leaderboard-modal");
 const leaderboardBtnMobile = document.getElementById("leaderboard-btn-mobile");
 const closeLeaderboardBtn = document.getElementById("close-leaderboard-btn");
 
-// Toast container
+// Toast container - positioned at bottom on mobile to avoid covering game holes
 let toastContainer = document.getElementById("toast-container");
 if (!toastContainer) {
   toastContainer = document.createElement("div");
   toastContainer.id = "toast-container";
   toastContainer.className =
-    "fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none";
+    "fixed bottom-24 sm:top-20 sm:bottom-auto left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none";
   document.body.appendChild(toastContainer);
 }
 
